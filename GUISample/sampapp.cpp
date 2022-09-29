@@ -22,6 +22,8 @@ void SampApp::DetermineAction(int beaconToFollow, double *lPow, double *rPow)
     static int    Ground;
     static bool   Collision;
 
+    float g=0.1;
+
     /*Access to values from Sensors - Only ReadSensors() gets new values */
     if(IsObstacleReady(LEFT))
         left      = GetObstacleSensor(LEFT);
@@ -48,34 +50,11 @@ void SampApp::DetermineAction(int beaconToFollow, double *lPow, double *rPow)
             *lPow=-0.06;
             *rPow=0.06; }
     }
-    else if(right>1.5) { /* Obstacle Near - Avoid */
-        *lPow=0.0;
-        *rPow=0.05;
-    }
-    else if(left>1.5) {
-        *lPow=0.05;
-        *rPow=0.0;
-    }
     else {
-        if(beaconReady && beacon.beaconVisible) {
-            if(beacon.beaconDir>20.0) { /* turn to Beacon */
-                *lPow=0.0;
-                *rPow=0.1;
-            }
-            else if(beacon.beaconDir<-20.0) {
-                *lPow=0.1;
-                *rPow=0.0;
-            }
-            else { /* Full Speed Ahead */
-                *lPow=0.1;
-                *rPow=0.1;
-            }
+            *lPow=0.1 -g*right;
+            *rPow=0.1 - g*left;
         }
-        else { /* Full Speed Ahead */
-            *lPow=0.1;
-            *rPow=0.1;
-        }
-    }
+
 
     counter++;
 }

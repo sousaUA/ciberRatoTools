@@ -11,6 +11,8 @@ void DetermineAction(int beaconToFollow, float *lPow, float *rPow)
   static int    Ground;
   static bool   Collision;
 
+  float g=0.1;
+
   /*Access to values from Sensors - Only ReadSensors() gets new values */
   if(IsObstacleReady(LEFT))
   left=     GetObstacleSensor(LEFT);
@@ -19,6 +21,7 @@ void DetermineAction(int beaconToFollow, float *lPow, float *rPow)
   if(IsObstacleReady(CENTER))
   center=   GetObstacleSensor(CENTER);
 
+#if 0
   beaconReady = IsBeaconReady(beaconToFollow);
   if(beaconReady) {
     beacon =  GetBeaconSensor(beaconToFollow);
@@ -27,9 +30,11 @@ void DetermineAction(int beaconToFollow, float *lPow, float *rPow)
 
   if(IsGroundReady())
   Ground=    GetGroundSensor();
+#endif
 
   if(IsBumperReady())
   Collision= GetBumperSensor();
+
 
   if(center>4.5 || right>4.5 || left>4.5 || Collision) { /* Close Obstacle - Rotate */
     if(counter % 400 < 200) {
@@ -39,6 +44,13 @@ void DetermineAction(int beaconToFollow, float *lPow, float *rPow)
         *lPow=-0.06;
         *rPow=0.06; }
       }
+      else{
+        *lPow = 0.1 - g*right;
+        *rPow = 0.1 - g*left;
+      }
+
+
+#if 0
       else if(right>1.5) { /* Obstacle Near - Avoid */
         *lPow=0.0;
         *rPow=0.05;
@@ -52,6 +64,6 @@ void DetermineAction(int beaconToFollow, float *lPow, float *rPow)
         *rPow=0.1;
 
       }
-
+#endif
       counter++;
     }

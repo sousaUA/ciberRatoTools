@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
     /* Reading next values from Sensors */
     ReadSensors();
 
+    #if 0
     /* show LineSensor values */
     bool line[N_LINE_ELEMENTS];
     GetLineSensor(line);
@@ -95,6 +96,7 @@ int main(int argc, char *argv[])
       fprintf(stderr,"%s",line[i]?"1":"0");
     }
     fprintf(stderr,"\n");
+    #endif
 
     if(GetFinished()) /* Simulator has received Finish() or Robot Removed */
     {

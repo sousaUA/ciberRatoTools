@@ -8,7 +8,13 @@ ARGS+=" --scoring 1"
 
 sleep 1
 
+# (cd robsample; ./robsample --pos 1 --robname "R1"  ) &
+(cd GUISample; LD_LIBRARY_PATH=../libRobSock/ ./GUISample --pos 1 --robname "R1") &
+
+sleep 1
+
 (cd Viewer; ./Viewer --autoconnect)
+
 
 killall simulator
 
