@@ -565,8 +565,6 @@ bool cbSimulator::registerRobot(cbRobot *robot)
 {
 	unsigned int i;
 
-	fprintf(stderr, "registerRobot\n");
-
 	bool isRobotBeacon = ((dynamic_cast<cbRobotBeacon *>(robot)) != 0);
 
 	if (isRobotBeacon && lab->nBeacons() != 0)
@@ -649,7 +647,6 @@ const char *cbSimulator::curStateAsString()
 
 void cbSimulator::step()
 {
-	cerr << "step " << curState <<" " << nextState <<"\n";
 	// cout.form("Reading robot actions (%u)\n", curCycle);
 	RobotActions();
 	if (logging)
@@ -684,7 +681,6 @@ void cbSimulator::step()
 	}
 
 	// cout.form("Sending sensors to robots(%u)\n", curCycle);
-	cerr << "step sendSensors\n";
 	SendSensors();
 	// cout.form("Updating views (%u)\n", curCycle);
 	UpdateViews();
@@ -702,10 +698,8 @@ void cbSimulator::step()
 */
 void cbSimulator::CheckIn()
 {
-	cerr << "simulator checkin\n";
 	while (receptionist->CheckIn())
 	{
-		cout << "simulator checkin A\n";
 		cbClientForm &form = receptionist->Form();
 		int cnt;
 		switch (form.type)
@@ -736,7 +730,6 @@ void cbSimulator::CheckIn()
 		case cbClientForm::ROBOTBEACON:
 		{
 			// cout << "Robot form is going to be processed\n";
-			cerr << "simulator checkin Robot\n";
 			cbRobot *robot = form.client.robot;
 			if (registerRobot(robot))
 			{
@@ -847,7 +840,6 @@ void cbSimulator::ViewCommands()
 */
 void cbSimulator::RobotActions()
 {
-	cerr << "RobotActions\n";
 	cbRobotAction action;
 	for (unsigned int i = 0; i < robots.size(); i++)
 	{
@@ -1223,7 +1215,6 @@ void cbSimulator::buildGraph(void)
 
 double cbSimulator::calcDistMaxFromGridTo(cbPoint &p)
 {
-	fprintf(stderr, "calcDistMaxFromGridTo\n");
 	int g;
 
 	if (lab->nTargets() == 0)
