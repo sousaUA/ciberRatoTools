@@ -127,7 +127,7 @@ cbRobot::cbRobot(const double irSensorAngle[]) : cbClient()
 
 	vel=0.0;
 
-        nextPathInd = 1;  // used for CONTROL scoring
+    nextPathInd = 1;  // used for CONTROL scoring
 
 }
 
@@ -163,6 +163,8 @@ const char *cbRobot::curStateAsString()
 void cbRobot::setSimulator(cbSimulator *s)
 {
 	simulator = s; 
+
+    connect(this, &QUdpSocket::readyRead, simulator, &cbSimulator::RobotActions);
 
 	// Set the number of beacon sensors
 	beaconSensors.resize(simulator->Lab()->nBeacons());

@@ -133,6 +133,9 @@ int main(int argc, char *argv[])
                      // Wander
                      DetermineAction(1,&lPow,&rPow);
                      DriveMotors(lPow,rPow);
+                     break;
+		 case STOP: /* Stop */
+                     DriveMotors(0.0,0.0);
 
                      break;
 	}
