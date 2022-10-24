@@ -841,6 +841,7 @@ void cbSimulator::ViewCommands()
 void cbSimulator::RobotActions()
 {
 	cbRobotAction action;
+	bool resetSim = false;
 	for (unsigned int i = 0; i < robots.size(); i++)
 	{
 		cbRobot *robot = robots[i];
@@ -871,10 +872,18 @@ void cbSimulator::RobotActions()
 			if (action.sayReceived)
 				robot->setSayMessage(action.sayMessage);
 
+			if (action.resetSim)
+				resetSim = true;
+
 			action.sensorRequests.clear();
 
-			step();
 		}
+		
+		if(resetSim) { 
+			reset(); 
+		}
+
+		step();
 	}
 }
 
