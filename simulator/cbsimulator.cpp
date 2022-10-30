@@ -240,26 +240,38 @@ void cbSimulator::reset()
 	}
 
 	// delete Viewers
-	for (j = 0; j < views.size(); j++)
-	{
-		views.clear();
-	}
+	// for (j = 0; j < views.size(); j++)
+	// {
+	// 	views.clear();
+	// }
 
 	// delete robots
+	// for (unsigned int i = 0; i < robots.size(); i++)
+	// {
+	// 	/*if(robots[i] != 0) {
+	// 		delete robots[i];
+	// 		robots[i]=0;
+	// 	}*/
+	// 	deleteRobot(i + 1);
+	// }
+
 	for (unsigned int i = 0; i < robots.size(); i++)
 	{
-		/*if(robots[i] != 0) {
-			delete robots[i];
-			robots[i]=0;
-		}*/
-		deleteRobot(i + 1);
-	}
+	    if(robots[i] != 0) {
+    		robots[i]->resetRobot();  
+			robots[i]->setPosition(grid->at(i));
+	 	}
+	 }
+
 
 	gui->appendMessage("RESETTING");
 	cout << "RESETTING\n";
 
 	curCycle = 0;
-	curState = nextState = INIT;
+	//curState = nextState = INIT;
+
+	curState = INIT;
+	nextState = RUNNING;
 
 	cbGPSSensor::offsetX = randUniform(0.0, 1000.0);
 	cbGPSSensor::offsetY = randUniform(0.0, 1000.0);
@@ -648,7 +660,7 @@ const char *cbSimulator::curStateAsString()
 void cbSimulator::step()
 {
 	// cout.form("Reading robot actions (%u)\n", curCycle);
-	RobotActions();
+	// for SYNC RobotActions();
 	if (logging)
 		Log(*logStream);
 	// cout.form("Checking new registrations (%u)\n", curCycle);
@@ -872,11 +884,11 @@ void cbSimulator::RobotActions()
 			if (action.sayReceived)
 				robot->setSayMessage(action.sayMessage);
 
-			if (action.resetSim)
+			if (action.resetSim) {
 				resetSim = true;
+			}
 
 			action.sensorRequests.clear();
-
 		}
 		
 		if(resetSim) { 
