@@ -24,7 +24,7 @@ class CRobLink:
         
         self.sock.sendto(msg.encode(), (host, UDP_PORT))  # TODO consider host arg
         data, (host,self.port) = self.sock.recvfrom(1024)
-        #print "received message:", data, " port ", self.port
+        # print("received message:", data, " port ", self.port)
 
         parser = sax.make_parser()
         
@@ -81,6 +81,10 @@ class CRobLink:
 
     def finish(self):
         msg = '<Actions LeftMotor="0.0" RightMotor="0.0" EndLed="On"/>'
+        self.sock.sendto(msg.encode(),(self.host,self.port))
+
+    def reset(self):
+        msg = '<Actions Reset="On"/>'
         self.sock.sendto(msg.encode(),(self.host,self.port))
 
     #my_status = lambda self : self.status
