@@ -3,9 +3,8 @@ import numpy as np
 import subprocess
 import socket
 import time
-from sqlalchemy import true
-
 from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import PPO
 
 import sys
@@ -20,7 +19,12 @@ class CiberEnv(Env):
         super().__init__()
 
         #self.observation_shape=(7,)
-        self.observation_space=spaces.MultiBinary(7)
+
+        #self.observation_space=spaces.MultiBinary(7)
+
+        self.observation_space=spaces.Box(low=np.array([0,0,0,0,0,0,0,-0.15,-0.15]), 
+                                         high=np.array([1,1,1,1,1,1,1,0.15,0.15]),
+                                         shape=(9,),dtype=np.float32)
 
         self.action_space=spaces.Box(low=-0.15, high=0.15,shape=(2,),dtype=np.float32)
 
@@ -42,8 +46,9 @@ class CiberEnv(Env):
         self.agentapi.driveMotors(action[0],action[1])
         self.agentapi.readSensors()
 
-        obsl = [int(x) for x in self.agentapi.measures.lineSensor]
-        obs = np.array(obsl)
+        #obsl = [int(x) for x in self.agentapi.measures.lineSensor]
+        obsl = [float(x) for x in self.agentapi.measures.lineSensor]
+        obs = np.append(np.array(obsl),action)
 
         done = self.agentapi.measures.time == 5000
 
@@ -62,8 +67,9 @@ class CiberEnv(Env):
         else: 
             self.agentapi = croblink.CRobLink('ciberEnv',1,SIM_IP)
         self.agentapi.readSensors()
-        obsl = [int(x) for x in self.agentapi.measures.lineSensor]
-        obs = np.array(obsl)
+        #obsl = [int(x) for x in self.agentapi.measures.lineSensor]
+        obsl = [float(x) for x in self.agentapi.measures.lineSensor]
+        obs = np.append(np.array(obsl),np.array([0.0,0.0]))
 
         return obs
 
@@ -74,28 +80,33 @@ class CiberEnv(Env):
 
 c_env = CiberEnv()
 
+#c_env = DummyVecEnv([lambda: c_env])
+
+
 #model = PPO("MlpPolicy", c_env, verbose=1)
-#model.learn(200000)
+model = PPO.load("ciber_ppo_2", env=c_env)
+model.learn(1000000)
 
 
-#model.save("ciber_ppo_1")
-#del model  # delete trained model to demonstrate loading
+model.save("ciber_ppo_3")
+del model  # delete trained model to demonstrate loading
 
 # Load the trained agent
-model = PPO.load("ciber_ppo_1", env=c_env)
+model = PPO.load("ciber_ppo_2", env=c_env)
 
 # Evaluate the agent
-mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
-print("evaluate mean", mean_reward, "std", std_reward)
+#mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
+#print("evaluate mean", mean_reward, "std", std_reward)
 
 while True:
     print('Testing')
     obs = c_env.reset()
+    print('obs',obs,'type',type(obs),'dtype',obs.dtype)
     done = False
     while not done:
         #action = c_env.action_space.sample()
         #action = np.array([obs[0]*0.15,obs[1]*0.15])
-        action, _states = model.predict(obs, deterministic=true)
+        action, _states = model.predict(obs, deterministic=True)
         obs, reward, done, info = c_env.step(action)
         if done:
             print('Score', info['score'])
