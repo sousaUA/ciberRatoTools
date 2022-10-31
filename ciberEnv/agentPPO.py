@@ -2,6 +2,8 @@
 from stable_baselines3 import PPO
 import numpy as np
 
+import sys
+sys.path.append('../pClient')
 from croblink import *
 
 SIM_IP = "127.0.0.1"
