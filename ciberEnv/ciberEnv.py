@@ -22,9 +22,11 @@ class CiberEnv(Env):
 
         #self.observation_space=spaces.MultiBinary(7)
 
-        self.observation_space=spaces.Box(low=np.array([0,0,0,0,0,0,0,-0.15,-0.15]), 
-                                         high=np.array([1,1,1,1,1,1,1,0.15,0.15]),
-                                         shape=(9,),dtype=np.float32)
+        # self.observation_space=spaces.Box(low=np.array([0,0,0,0,0,0,0,-0.15,-0.15]), 
+        #                                  high=np.array([1,1,1,1,1,1,1,0.15,0.15]),
+        #                                  shape=(9,),dtype=np.float32)
+
+        self.observation_space=spaces.MultiBinary(14)
 
         self.action_space=spaces.Box(low=-0.15, high=0.15,shape=(2,),dtype=np.float32)
 
@@ -47,10 +49,16 @@ class CiberEnv(Env):
         self.agentapi.readSensors()
 
         #obsl = [int(x) for x in self.agentapi.measures.lineSensor]
-        obsl = [float(x) for x in self.agentapi.measures.lineSensor]
-        obs = np.append(np.array(obsl),action)
 
-        done = self.agentapi.measures.time == 5000
+        #obsl = [float(x) for x in self.agentapi.measures.lineSensor]
+        #obs = np.append(np.array(obsl),action)
+
+        obsl = [int(x) for x in self.agentapi.measures.lineSensor]
+        obs = np.append(np.array(obsl),np.array(self.prev_obsl))
+        self.prev_obsl = obsl
+
+        done = self.agentapi.measures.time == 5000 \
+               or self.agentapi.measures.score < 0
 
         reward = self.agentapi.measures.score - self.prev_score
         self.prev_score = self.agentapi.measures.score
@@ -68,8 +76,11 @@ class CiberEnv(Env):
             self.agentapi = croblink.CRobLink('ciberEnv',1,SIM_IP)
         self.agentapi.readSensors()
         #obsl = [int(x) for x in self.agentapi.measures.lineSensor]
-        obsl = [float(x) for x in self.agentapi.measures.lineSensor]
-        obs = np.append(np.array(obsl),np.array([0.0,0.0]))
+        obsl = [int(x) for x in self.agentapi.measures.lineSensor]
+        obs = np.append(np.array(obsl),np.array([0 for i in range(7)]))
+        self.prev_obsl = obsl
+
+        self.prev_score = 0
 
         return obs
 
@@ -84,19 +95,19 @@ c_env = CiberEnv()
 
 
 #model = PPO("MlpPolicy", c_env, verbose=1)
-model = PPO.load("ciber_ppo_2", env=c_env)
-model.learn(1000000)
+model = PPO.load("ciber_ppo_5", env=c_env)
+model.learn(200000)
 
 
-model.save("ciber_ppo_3")
+model.save("ciber_ppo_6")
 del model  # delete trained model to demonstrate loading
 
 # Load the trained agent
-model = PPO.load("ciber_ppo_2", env=c_env)
+model = PPO.load("ciber_ppo_6", env=c_env)
 
 # Evaluate the agent
-#mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
-#print("evaluate mean", mean_reward, "std", std_reward)
+mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
+print("evaluate mean", mean_reward, "std", std_reward)
 
 while True:
     print('Testing')
